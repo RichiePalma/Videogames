@@ -115,7 +115,48 @@ This can also be used within Triggers or Colliders if the game is supposed to wo
 
 ### Coroutines
 
+Coroutines were explaines as pseudothreads. This will constantly excecute a piece of code stated inside the coroutine. ``` yield return``` in important in here, since it states how will it excecute specially if you want to make such coroutine wait some time in each loop.
+
+```c#
+	IEnumerator HacerCambio()
+    	{
+        	while (true)
+        	{
+            		yield return new WaitForSeconds(0.2f);
+            		float distancia = Vector3.Distance(transform.position, path[currentNode].transform.position);
+            		if(distancia < threshold) {
+                		currentNode++;
+                		currentNode %= path.Length;
+             		}
+        	}
+    	}
+```
+In this case it will call the function WaitForSeconds, it is important to state the parameter as a float. 
 ### Patrolling
+
+Patrolling consist in creating a series of Nodes that can only be visible for the programmer but not for the user. This nodes are used as a reference of a path that one object may follow. Each Node is connected with another only if he is the parent of the other node. The road points Parent Node in the direction to the Children (pNode --> chNode). Using the same piece of code as Coroutines but with a slight change:
+
+```c#
+	 public Node[] path;
+	 void Update () {
+		transform.LookAt(path[currentNode].transform); //The object rotates pointing at the objective Node
+		transform.Translate(transform.forward*Time.deltaTime*5, Space.World); // //Moves to objective Node
+	 }
+	  IEnumerator HacerCambio()
+	    {
+		while (true)
+		{
+		    yield return new WaitForSeconds(0.2f);
+		    float distancia = Vector3.Distance(transform.position, path[currentNode].transform.position);
+		    if(distancia < threshold) {
+			currentNode++;
+			currentNode %= path.Length;
+		     }
+		}
+	    }
+```
+
+With the array Node, one manages to store the Node's children, and since it is public, one can manually insert the children directly from Unity. Then, with a coroutine, the object will travel through all the nodes within the array. 
 
 ### GUI
 
