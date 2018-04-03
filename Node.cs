@@ -1,12 +1,22 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Node : MonoBehaviour {
-
     public Node[] children;
-	// Use this for initialization
-	void Start () {
+    public List<Node> historial;
+    public float g, h;
+    // Use this for initialization
+
+//properties - C#
+    public float F
+    {
+        get
+        {
+            return g + h;
+        }
+    }
+    void Start () {
 		
 	}
 	
