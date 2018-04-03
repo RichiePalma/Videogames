@@ -1,98 +1,46 @@
-﻿//namespaces - libreria
-// .NET 2.0
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Character : MonoBehaviour { //The : means inheritance
+public class Character : MonoBehaviour {
 
-    // reference to other components
-    // all components have a corresponding class
-    private Transform t;
+    public Node[] path;
+    public float threshold;
+    public Node start, end;
 
-    // attributos publicos
-    // primitivos y clases de unity pueden ser modificadas desde editor
-    public float velocidad;
-
-    // public GameObject go;
-    public Text text;
-
-    private Vector3 pos;
-    // Use this for initialization
+    private int currentNode;
+	// Use this for initialization
 	void Start () {
+        currentNode = 0;
+        StartCoroutine(HacerCambio());
 
-        // this can return null!!! (when you have no component of that type)
-        // whenever you do this do it the least times possible since it is expensive
-        t = GetComponent<Transform>();
-        //go = GameObject.Find("Text");
-        //text = go.GetComponent<Text>();
-        text.text = "Hola, si Jaló";
-        pos = transform.position;
-        
+        List<Node> breadthwise = PathFinding.Breadthwise(start, end);
+        List<Node> depthwise = PathFinding.Depthwise(start, end);
+        List<Node> aStar = PathFinding.AStar(start, end);
+        for(int i=0; i< breadthwise.Count; i++)
+        {
+            print(aStar[i].transform.name + " " + aStar[i].F);
+        }
 	}
 	
 	// Update is called once per frame
 	void Update () {
-
-        //you can also do t.Translate (0.01f, 0, 0);
-        // first issue is speed in frames since slow computers run the game slower than fast ones
-        // Time.deltaTime it keeps track of how much time passed since last frame
-       // Debug.Log(Time.deltaTime);
-        //Debug.Log(Time.deltaTime); can also print or print();
-
-        //input - 2 ways to catch input
-        // - directly pole(consultar) from device
-        if (Input.GetKeyDown(KeyCode.A)) { //Only prints when A is pressed
-            print("Key Down");
-        }
-
-        if(Input.GetKey(KeyCode.A)) { //While A is pressed 
-            print("Just Key");
-        }
-
-        if (Input.GetKeyUp(KeyCode.A)) //Key released
-        {
-            print("Key Released");
-        }
-
-        if (Input.GetMouseButtonDown(0)) { //0 is left click
-            print(Input.mousePosition);
-        }
-        // - through axes (plural of axis)
-
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        //print(h);
-        transform.Translate(h * velocidad * Time.deltaTime, v * velocidad * Time.deltaTime, 0,Space.World);
-        //Space.World es para que los ejes no se volteen cuando colisione la figura
+        //Solo input y movimiento dentro de update
+        //rota el objeto de tal manera que el frende de este objeto ve al objetico
+        transform.LookAt(path[currentNode].transform);
+        transform.Translate(transform.forward*Time.deltaTime*5, Space.World);
 	}
 
-    void OnCollisionEnter(Collision c) //En cuanto sucede
+    IEnumerator HacerCambio()
     {
-
-        print(c.gameObject.transform.name); //c.gameObject es referencia al objeto con quien chocas
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
+            float distancia = Vector3.Distance(transform.position, path[currentNode].transform.position);
+            if(distancia < threshold) {
+                currentNode++;
+                currentNode %= path.Length;
+             }
+        }
     }
-
-    void OnCollisionStay(Collision c)  //Mientras sucede
-    {
-        
-    }
-
-    void OnTriggerEnter(Collider c) //Cuando deja de suceder
-    {
-        Destroy(c.gameObject); //Destruye el objeto con el que choco
-        transform.position = pos;
-    }
-
-    void OnTriggerStay(Collider c)
-    {
-
-    }
-
-    void OnTriggerExit(Collider c)
-    {
-
-    }
-
 }
